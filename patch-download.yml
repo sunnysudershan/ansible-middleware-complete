@@ -1,0 +1,17 @@
+---
+- name: "Download JBoss EAP patch"
+  hosts: localhost
+  become: yes
+  collections:
+   - middleware_automation.redhat_csp_download
+  vars:
+   zipfile_dest: "{{ lookup('env', 'PWD') }}/jboss-eap-{{ patch_version }}-patch.zip"
+   rhn_download_url: "https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId={{ patch_id }}"
+  tasks:
+  - name: "Download zipfile from RHN: {{ rhn_download_url }}"
+    middleware_automation.redhat_csp_download.redhat_csp_download:
+     url: "{{ rhn_download_url }}"
+     dest: "{{ zipfile_dest }}"
+     username: "{{ rhn_username }}"
+     password: "{{ rhn_password }}"
+

@@ -1,0 +1,27 @@
+---
+- name: "JBoss EAP patch"
+  hosts: jboss
+  become: yes
+  vars:
+   wildfly_install_workdir: '/opt/'
+   install_name: "{{ override_install_name | default('jboss') }}"
+   jboss_version: "7.4"
+   wildfly_version: "{{ jboss_version }}"
+   wildfly_user: "{{ install_name }}"
+   wildfly_group: "{{ wildfly_user }}"
+   wildfly_home: "{{ wildfly_install_workdir }}/{{ install_name }}-eap-{{ wildfly_version }}"
+   wildfly_basedir_prefix: "/opt/{{ install_name }}"
+   wildfly_config_name: "{{ install_name }}"
+   wildfly_port_range_offset: 0
+   wildfly_instance_name: "{{ inventory_hostname }}"
+   wildfly_jboss_eap_apply_cp: True
+   wildfly_jboss_eap_enable: True
+   wildfly_offline_install: True
+   instance_management_ports:
+     - 9990
+   rhn_cp_id: "{{ patch_id }}"
+   rhn_cp_v: "{{ patch_version }}"
+  collections:
+   - middleware_automation.wildfly
+  roles:
+   - wildfly_install

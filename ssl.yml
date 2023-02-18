@@ -1,0 +1,60 @@
+---
+
+- name: Request Let's Encrypt Static Certificates
+  hosts: jbcs
+  become: true
+  gather_facts: False
+  tasks:
+
+  - name: Install on node RHEL 8
+    block:
+      - name: Stop jbcs
+        service:
+          name: jbcs-httpd24-httpd.service
+          state: stopped
+      - name: Enable EPEL
+        dnf:
+          name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+          state: present
+          disable_gpg_check: true
+
+      - name: install nginx/certbot
+        yum:
+          name:
+            - certbot
+            - python3-certbot-apache
+          state: present
+
+
+  - name: Generate certbot
+    command: >-
+      certbot certonly --standalone
+      -m dummy@redhat.com
+      --agree-tos
+      -d {{ frontend_hostname }} -n
+
+
+  - name: Remove the Apache package
+    ansible.builtin.yum:
+      name: httpd
+      state: absent
+
+  - name: Copy letsecrypt key
+    copy:
+      src: "/etc/letsencrypt/live/{{ frontend_hostname }}/cert.pem"
+      dest: /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/localhost.crt
+      remote_src: yes
+      mode: 0644
+
+  - name: Copy letsecrypt certificate
+    copy:
+      src: "/etc/letsencrypt/live/{{ frontend_hostname }}/privkey.pem"
+      dest: /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/private/localhost.key
+      remote_src: yes
+
+      mode: 0644
+  - name: Start jbcs
+    service:
+      name: jbcs-httpd24-httpd.service
+      state: started
+

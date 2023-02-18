@@ -1,0 +1,8 @@
+{ "standard-sockets" => {
+  "remote-destination-outbound-socket-binding" => {
+    "proxy1" => {
+      "host" => "frontend1.x7sx2.internal", "port" =>  6666,
+      }
+    }
+  }
+}
